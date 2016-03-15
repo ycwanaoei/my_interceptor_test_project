@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+    <bean id="dataSourceSpied" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+
+        <!-- http://commons.apache.org/proper/commons-dbcp/configuration.html -->
+        <!-- 连接池中可同时连接的最大的连接数 -->
+        <property name="maxActive" value="${druid.maxActive}" />
+        <!-- 池启动时创建的连接数量 -->
+        <property name="initialSize" value="${druid.initialSize}" />
+        <!-- 最大等待连接中的数量 -->
+        <property name="maxIdle" value="${druid.maxIdle}" />
+        <!-- 连接池中最小的空闲的连接数 -->
+        <property name="minIdle" value="${druid.minIdle}" />
+        <!-- 是否自动回收超时连接 -->
+        <property name="removeAbandoned" value="${druid.removeAbandoned}" />
+        <!-- 超过时间限制，回收没有用(废弃)的连接 单位秒 -->
+        <property name="removeAbandonedTimeout" value="${druid.removeAbandonedTimeout}" />
+        <!-- 最大等待时间，当没有可用连接时，连接池等待连接释放的最大时间，超过该时间限制会抛出异常 -->
+        <property name="maxWait" value="${druid.maxWait}" />
+        <!-- 是否记录中断事件 -->
+        <property name="logAbandoned" value="${druid.logAbandoned}" />
+        <property name="validationQuery" value="${druid.validationQuery}" />
+        <property name="testOnBorrow" value="${druid.testOnBorrow}" />
+
+    </bean>
+    <bean id="dataSource2" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+        <constructor-arg ref="dataSourceSpied" />
+    </bean>
+
+    <!-- transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource2" />
+    </bean>
+
+    <!-- enable component scanning (beware that this does not enable mapper
+        scanning!) <context:component-scan base-package="cn.dianxin.k.kinterface"
+        /> -->
+    <!-- <context:component-scan base-package="cn.dianxin.k.kinterface"> <context:exclude-filter
+        type="annotation" expression="org.springframework.stereotype.Repository"
+        /> </context:component-scan> -->
+
+    <!-- enable autowire -->
+    <context:annotation-config />
+
+    <!-- enable transaction demarcation with annotations -->
+    <tx:annotation-driven transaction-manager="transactionManager"
+                          proxy-target-class="true" />
+
+    <!-- define the SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource2" />
+        <property name="configLocation" value="classpath:mapper/mybatis/mybatis-config.xml" />
+    </bean>
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory" />
+    </bean>
+
+    <!-- scan for mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.test.manager.mapper" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+</beans>

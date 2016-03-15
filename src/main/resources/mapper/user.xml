@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.test.manager.mapper.UserMapper">
+
+    <resultMap id="userMap" type="com.test.manager.model.User">
+        <id property="userId" column="user_id" />
+        <result property="userName" column="user_name"/>
+        <result property="account" column="account" />
+    </resultMap>
+
+    <select id="findAll" parameterType="map" resultMap="userMap">
+        SELECT user_id,user_name,account
+        from t_sys_user
+    </select>
+
+    <select id="getUserNameByAccount" parameterType="String" resultType="String">
+        SELECT user_name
+        FROM t_sys_user
+        where account = #{account}
+    </select>
+
+    <select id="countAll" parameterType="String" resultType="Integer">
+        select count(1)
+        from rs_game
+        where 1=1
+        <if test="cName != null and cName != ''">
+            and c_name like concat('%',#{cName},'%')
+        </if>
+    </select>
+
+    <!-- update-->
+    <update id="updateGame">
+        UPDATE rs_game
+        <set>
+            <if test="cName != null and cName != ''">
+                c_name=#{cName },
+            </if>
+            <if test="eName != null and eName != ''">
+                e_name=#{eName },
+            </if>
+            <if test="encodeType!=null and encodeType!=''">
+                encode_type=#{encodeType}
+            </if>
+        </set>
+        WHERE game_id=#{gameId }
+    </update>
+
+    <!-- 获取绑定用户-->
+    <select id="getBindUsers" resultMap="userMap">
+        select a.user_id,concat(a.user_name,'(', a.account, ')') as user_name
+        from t_sys_user a,rs_game_user_mapping b
+        where b.game_id=#{gameId} and a.user_id=b.user_id
+    </select>
+
+    <select id="getUnbindUsers" resultMap="userMap">
+        select a.user_id,concat(a.user_name,'(', a.account, ')') as user_name
+        from t_sys_user a
+        where not EXISTS
+        (
+        select 1 from rs_game_user_mapping b
+        where b.game_id=#{gameId} and a.user_id=b.user_id
+        )
+    </select>
+
+</mapper>

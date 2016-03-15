@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' debug="true">
+
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %p %c %x --> %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="dailyFile" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="${manager.root}/logs/daily.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %p %c %x --> %m%n" />
+		</layout>
+	</appender>
+
+    <logger name="com.test.manager" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="console" />
+		<!--<appender-ref ref="dailyFile" />-->
+    </logger>
+
+	<logger name="com.test.mytest" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="console" />
+	</logger>
+
+
+
+	<!--<logger name="org.springframework.jdbc.core.JdbcTemplate" additivity="true">-->
+		<!--<level value="DEBUG" />-->
+		<!--&lt;!&ndash; 日志输出地 &ndash;&gt;-->
+		<!--<appender-ref ref="console" />-->
+	<!--</logger>-->
+	<!--<logger name="java.sql.Connection" additivity="true">-->
+		<!--<level value="DEBUG" />-->
+		<!--<appender-ref ref="console" />-->
+	<!--</logger>-->
+	<!--<logger name="java.sql.Statement" additivity="true">-->
+		<!--<level value="DEBUG" />-->
+		<!--<appender-ref ref="console" />-->
+	<!--</logger>-->
+	<!--<logger name="java.sql.PreparedStatement" additivity="true">-->
+		<!--<level value="DEBUG" />-->
+		<!--<appender-ref ref="console" />-->
+	<!--</logger>-->
+	<!--<logger name="java.sql.ResultSet" additivity="true">-->
+		<!--<level value="DEBUG" />-->
+		<!--<appender-ref ref="console" />-->
+	<!--</logger>-->
+
+
+
+	<root>
+		<level value="error" />
+		<appender-ref ref="console" />
+		<!--<appender-ref ref="dailyFile" />-->
+	</root>
+</log4j:configuration>
